@@ -163,7 +163,7 @@ def get_total_list(goal):
         for action in Crafting['Recipes']:
             if item in Crafting['Recipes'][action]['Produces']:
                 if 'Consumes' in Crafting['Recipes'][action]:
-                    for consumable in Crafting['Recipes'][action]:
+                    for consumable in Crafting['Recipes'][action]['Consumes']:
                         queue.append((consumable, Crafting['Recipes'][action]['Consumes'][consumable]))
                 if 'Requires' in Crafting['Recipes'][action]:
                     for requireable in Crafting['Recipes'][action]['Requires']:
