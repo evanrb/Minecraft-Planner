@@ -1,6 +1,8 @@
 import json
 from collections import namedtuple, defaultdict, OrderedDict
 from timeit import default_timer as time
+from math import inf
+from heapq import heappop, heappush
 
 Recipe = namedtuple('Recipe', ['name', 'check', 'effect', 'cost'])
 
@@ -161,7 +163,7 @@ def get_total_list(goal):
         for action in Crafting['Recipes']:
             if item in Crafting['Recipes'][action]['Produces']:
                 if 'Consumes' in Crafting['Recipes'][action]:
-                    for consumable in Crafting['Recipes'][action]
+                    for consumable in Crafting['Recipes'][action]:
                         queue.append((consumable, Crafting['Recipes'][action]['Consumes'][consumable]))
                 if 'Requires' in Crafting['Recipes'][action]:
                     for requireable in Crafting['Recipes'][action]['Requires']:
@@ -204,7 +206,7 @@ def search(graph, state, is_goal, limit, heuristic):
             return path
 
         for adj_action, adj_state, adj_cost in graph(current_state):
-            total_cost = curent_cost + adj_cost + heuristic(adj_state, adj_action, current_state, goal_list)
+            total_cost = current_cost + adj_cost + heuristic(adj_state, adj_action, current_state, goal_list)
 
             if (adj_state not in cost or total_cost < cost[adj_state]) and adj_state not in visited_states:
                 cost[adj_state] = total_cost
@@ -257,6 +259,7 @@ if __name__ == '__main__':
 
     if resulting_plan:
         # Print resulting plan
+        cost = 0
         for state, action in resulting_plan:
             if action:
                 cost += Crafting['Recipes'][action]['Time']
