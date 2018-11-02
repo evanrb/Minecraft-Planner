@@ -119,7 +119,6 @@ if __name__ == '__main__':
     # Build rules
     all_recipes = []
     for name, rule in Crafting['Recipes'].items():
-        print("name: ", name, " rule: ", rule)
         checker = make_checker(rule)
         effector = make_effector(rule)
         recipe = Recipe(name, checker, effector, rule['Time'])
