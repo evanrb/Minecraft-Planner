@@ -85,37 +85,48 @@ def graph(state):
 def heuristic(state):
     # Implement your heuristic here!
     return 0
+def create_path(came_from, current_state, path):
+    path_object = came_from[current_state]
+    while path_object[0]:
+        path.insert(0, (path_object))
+        path_object = came_from[path_object[0]]
+    return path
 
 def search(graph, state, is_goal, limit, heuristic):
 
     start_time = time()
     path = []
+    start = (0, state)
+    open_set = [start]
+    closed_set = []
+    came_from = {}
+    cost_so_far = {}
+    came_from[state] = (None, None)
+    cost_so_far[state] = 0
     
     # Implement your search here! Use your heuristic here!
     # When you find a path to the goal return a list of tuples [(state, action)]
     # representing the path. Each element (tuple) of the list represents a state
     # in the path and the action that took you to this state
     while time() - start_time < limit:
-        start = (state, None)
-        open_set = [start]
-        closed_set = []
-        came_from = {}
-        cost_so_far = {}
-        came_from[state] = None
-        cost_so_far[state] = 0
-        while open_set:
-            current_state, current_action = open_set.pop([0])
-            if is_goal(current_state):
-                break
-            
-            for neighbor in graph(current_state):
-                print("neighbor is: "neighbor)
-                new_cost = cost_so_far[current_state] + neighbor[2]
-                if neighbor not in open_set or new_cost < cost_so_far[neighbor[1]]:
-                    cost_so_far[neighbor[1]] = new_cost
-                    entry = (neighbor[1], neighbor[0])
-                    open_set.append(entry)
-                    came_Frome[neighbor[1]] = current_state
+
+        current_cost, current_state = heappop(open_set)
+        if is_goal(current_state):
+                path.append((current_state, came_from[current_state][1]))
+                fin_path = createPath(came_from, current_state, path)
+                print('cost ', cost_so_far[current_state])
+                print('len ', len(fin_path))
+                print(time()-start_time, 'seconds.')
+                return fin_path
+                    
+        for neighbor in graph(current_state):
+            print("neighbor is: "neighbor)
+            new_cost = cost_so_far[current_state] + neighbor[2] + heuristic(current_state)
+            if neighbor not in open_set or new_cost < cost_so_far[neighbor[1]]:
+                cost_so_far[neighbor[1]] = new_cost
+                entry = (new_cost, neighbor[1])
+                open_set.append(entry)
+                came_Frome[neighbor[1]] = (current_state, neighbor[0])
     # Failed to find a path
     print(time() - start_time, 'seconds.')
     print("Failed to find a path from", state, 'within time limit.')
