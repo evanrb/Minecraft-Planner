@@ -11,7 +11,6 @@ class State(OrderedDict):
         for hashing, should you need to use a state as a key in another dictionary, e.g. distance[state] = 5. By
         default, dictionaries are not hashable. Additionally, when the state is converted to a string, it removes
         all items with quantity 0.
-
         Use of this state representation is optional, should you prefer another.
     """
 
@@ -66,7 +65,10 @@ def make_goal_checker(goal):
 
     def is_goal(state):
         # This code is used in the search process and may be called millions of times.
-        return False
+        for object in goal:
+            if state[object] < goal[object]:
+                return False
+        return True
 
     return is_goal
 
@@ -87,14 +89,33 @@ def heuristic(state):
 def search(graph, state, is_goal, limit, heuristic):
 
     start_time = time()
-
+    path = []
+    
     # Implement your search here! Use your heuristic here!
     # When you find a path to the goal return a list of tuples [(state, action)]
     # representing the path. Each element (tuple) of the list represents a state
     # in the path and the action that took you to this state
     while time() - start_time < limit:
-        pass
-
+        start = (state, None)
+        open_set = [start]
+        closed_set = []
+        came_from = {}
+        cost_so_far = {}
+        came_from[state] = None
+        cost_so_far[state] = 0
+        while open_set:
+            current_state, current_action = open_set.pop([0])
+            if is_goal(current_state):
+                break
+            
+            for neighbor in graph(current_state):
+                print("neighbor is: "neighbor)
+                new_cost = cost_so_far[current_state] + neighbor[2]
+                if neighbor not in open_set or new_cost < cost_so_far[neighbor[1]]:
+                    cost_so_far[neighbor[1]] = new_cost
+                    entry = (neighbor[1], neighbor[0])
+                    open_set.append(entry)
+                    came_Frome[neighbor[1]] = current_state
     # Failed to find a path
     print(time() - start_time, 'seconds.')
     print("Failed to find a path from", state, 'within time limit.')
