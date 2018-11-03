@@ -107,6 +107,7 @@ def graph(state):
 
 def heuristic(state):
     # Implement your heuristic here!
+
     return 0
 
 def search(graph, state, is_goal, limit, heuristic):
