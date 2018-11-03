@@ -1,6 +1,8 @@
 import json
 from collections import namedtuple, defaultdict, OrderedDict
 from timeit import default_timer as time
+from heapq import heappush, heappop
+from math import inf
 
 Recipe = namedtuple('Recipe', ['name', 'check', 'effect', 'cost'])
 
@@ -38,8 +40,18 @@ def make_checker(rule):
     # the search is attempted.
 
     def check(state):
-        # This code is called by graph(state) and runs millions of times.
+         # This code is called by graph(state) and runs millions of times.
         # Tip: Do something with rule['Consumes'] and rule['Requires'].
+        if 'Consumes' in rule:
+            for object in rule['Consumes']:
+                object_cost = rule['Consumes'][object]
+                if state[object] < object_cost:
+                    return False
+
+        if 'Requires' in rule:
+            for object in rule['Requires']:
+                if state[object] <= 0:
+                    return False
         return True
 
     return check
@@ -53,7 +65,16 @@ def make_effector(rule):
     def effect(state):
         # This code is called by graph(state) and runs millions of times
         # Tip: Do something with rule['Produces'] and rule['Consumes'].
-        next_state = None
+        next_state = state.copy()
+
+        if 'Produces' in rule:
+            for object in rule['Produces']:
+                next_state[object] += rule['Produces'][object]
+
+        if 'Consumes' in rule:
+            for object in rule['Consumes']:
+                next_state[object] -= rule['Consumes'][object]
+
         return next_state
 
     return effect
@@ -66,6 +87,7 @@ def make_goal_checker(goal):
     def is_goal(state):
         # This code is used in the search process and may be called millions of times.
         for object in goal:
+            #print("object is ", object)
             if state[object] < goal[object]:
                 return False
         return True
@@ -84,7 +106,47 @@ def graph(state):
 
 def heuristic(state):
     # Implement your heuristic here!
+    tools = ['bench', 'wooden_pickaxe', 'wooden_axe', 'stone_axe', 'stone_pickaxe', 'iron_pickaxe', 'iron_axe','furnace']
+
+    for tool in tools:
+        if state[tool] >= 1:
+            return inf
+
+    if state['iron_axe'] >= 1:
+        return inf
+    elif state['stone_axe'] >= 1:
+        return inf
+    elif state['wooden_axe'] >= 1:
+        return inf
+
+    if state['iron_pickaxe'] >= 1:
+        return inf
+    elif state['stone_pickaxe'] >= 1:
+        return inf
+
+    if state['plank'] >= 4:
+        return inf
+
+    if state['stick'] >= 2:
+        return inf
+
+    if state['wood'] >= 1:
+        return inf
+
+    if state['coal'] >= 1:
+        return inf
+
+    if state['cobble'] >= 8:
+        return inf
+
+    if state['ingot'] >= 6:
+        return inf
+
+    if state['ore'] >= 1:
+        return inf
+
     return 0
+
 def create_path(came_from, current_state, path):
     path_object = came_from[current_state]
     while path_object[0]:
@@ -93,7 +155,7 @@ def create_path(came_from, current_state, path):
     return path
 
 def search(graph, state, is_goal, limit, heuristic):
-
+    print("strt: ", state)
     start_time = time()
     path = []
     start = (0, state)
@@ -109,7 +171,7 @@ def search(graph, state, is_goal, limit, heuristic):
     # representing the path. Each element (tuple) of the list represents a state
     # in the path and the action that took you to this state
     while time() - start_time < limit:
-
+        #print("open_set is: ", open_set)
         current_cost, current_state = heappop(open_set)
         if is_goal(current_state):
                 path.append((current_state, came_from[current_state][1]))
@@ -117,19 +179,21 @@ def search(graph, state, is_goal, limit, heuristic):
                 print('cost ', cost_so_far[current_state])
                 print('len ', len(fin_path))
                 print(time()-start_time, 'seconds.')
+                print("fin: ", fin_path)
                 return fin_path
                     
         for neighbor in graph(current_state):
-            print("neighbor is: "neighbor)
+            #print("neighbor is: ", neighbor)
             new_cost = cost_so_far[current_state] + neighbor[2] + heuristic(current_state)
             if neighbor not in open_set or new_cost < cost_so_far[neighbor[1]]:
                 cost_so_far[neighbor[1]] = new_cost
                 entry = (new_cost, neighbor[1])
                 open_set.append(entry)
-                came_Frome[neighbor[1]] = (current_state, neighbor[0])
+                came_from[neighbor[1]] = (current_state, neighbor[0])
     # Failed to find a path
     print(time() - start_time, 'seconds.')
     print("Failed to find a path from", state, 'within time limit.')
+    print("end_state: ", current_state)
     return None
 
 if __name__ == '__main__':
@@ -164,7 +228,7 @@ if __name__ == '__main__':
     state.update(Crafting['Initial'])
 
     # Search for a solution
-    resulting_plan = search(graph, state, is_goal, 5, heuristic)
+    resulting_plan = search(graph, state, is_goal, 30, heuristic)
 
     if resulting_plan:
         # Print resulting plan
