@@ -107,6 +107,46 @@ def graph(state):
 
 def heuristic(state):
     # Implement your heuristic here!
+    tools = ['bench', 'wooden_pickaxe', 'wooden_axe', 'stone_axe', 'stone_pickaxe', 'iron_pickaxe', 'iron_axe','furnace']
+
+    for tool in tools:
+        if state[tool] >= 1:
+            return inf
+
+    if state['iron_axe'] >= 1:
+        return inf
+    elif state['stone_axe'] >= 1:
+        return inf
+    elif state['wooden_axe'] >= 1:
+        return inf
+
+    if state['iron_pickaxe'] >= 1:
+        return inf
+    elif state['stone_pickaxe'] >= 1:
+        return inf
+
+    if state['plank'] >= 4:
+        return inf
+
+    if state['stick'] >= 2:
+        return inf
+
+    if state['wood'] >= 1:
+        return inf
+
+    if state['coal'] >= 1:
+        return inf
+
+    if state['cobble'] >= 8:
+        return inf
+
+    if state['ingot'] >= 6:
+        return inf
+
+    if state['ore'] >= 1:
+        return inf
+
+    return 0
 
     return 0
 
